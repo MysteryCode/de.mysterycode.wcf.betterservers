@@ -67,11 +67,18 @@ class PackageUpdateServer extends DatabaseObject {
 		
 		$woltlabUpdateServer = null;
 		$woltlabStoreServer = null;
+		$woltlabUpdateServerCreate = $woltlabStoreServerCreate = !PACKAGE_SERVER_BETTERSERVERS || PACKAGE_SERVER_WOLTLAB_AUTO_CREATE;
 		$results = [];
 		foreach ($list as $packageServer) {
 			$isWoltLab = $packageServer->isWoltLabStoreServer() || $packageServer->isWoltLabUpdateServer();
 			
 			if (PACKAGE_SERVER_BETTERSERVERS && $isWoltLab && ($packageServer->isDisabled || PACKAGE_SERVER_WOLTLAB_SKIP)) {
+				if ($packageServer->isWoltLabUpdateServer()) {
+					$woltlabUpdateServerCreate = false;
+				}
+				else {
+					$woltlabStoreServerCreate = false;
+				}
 				continue;
 			}
 			
@@ -88,11 +95,11 @@ class PackageUpdateServer extends DatabaseObject {
 			$results[$packageServer->packageUpdateServerID] = $packageServer;
 		}
 		
-		if (!$woltlabUpdateServer && (!PACKAGE_SERVER_BETTERSERVERS || PACKAGE_SERVER_WOLTLAB_AUTO_CREATE)) {
+		if (!$woltlabUpdateServer && $woltlabUpdateServerCreate) {
 			$packageServer = PackageUpdateServerEditor::create(['serverURL' => 'http://update.woltlab.com/' . \wcf\getMinorVersion() . '/',]);
 			$results[$packageServer->packageUpdateServerID] = $packageServer;
 		}
-		if (!$woltlabStoreServer && (!PACKAGE_SERVER_BETTERSERVERS || PACKAGE_SERVER_WOLTLAB_AUTO_CREATE)) {
+		if (!$woltlabStoreServer && $woltlabStoreServerCreate) {
 			$packageServer = PackageUpdateServerEditor::create(['serverURL' => 'http://store.woltlab.com/' . \wcf\getMinorVersion() . '/',]);
 			$results[$packageServer->packageUpdateServerID] = $packageServer;
 		}
