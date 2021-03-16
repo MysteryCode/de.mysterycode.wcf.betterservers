@@ -6,7 +6,7 @@
 				<categoryname><![CDATA[general.system.packageServer]]></categoryname>
 				<optiontype>boolean</optiontype>
 				<defaultvalue>1</defaultvalue>
-				<enableoptions>package_server_woltlab_auto_versioning,package_server_woltlab_skip</enableoptions>
+				<enableoptions>package_server_woltlab_auto_versioning,package_server_woltlab_auto_create,package_server_woltlab_skip</enableoptions>
 			</option>
 			<option name="package_server_woltlab_auto_create">
 				<categoryname><![CDATA[general.system.packageServer]]></categoryname>
