@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<language xmlns="http://www.woltlab.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.woltlab.com https://mysterycode.de/XSD/language.xsd" languagecode="de">
+	<category name="wcf.acp.option">
+		<item name="wcf.acp.option.package_server_betterservers"><![CDATA[Optimierte Updateserver-Verwaltung aktivieren]]></item>
+		<item name="wcf.acp.option.package_server_woltlab_auto_create"><![CDATA[Standard-Updateserver automatisch anlegen]]></item>
+		<item name="wcf.acp.option.package_server_woltlab_auto_versioning"><![CDATA[Standard-Updateserver für WoltLab verwenden]]></item>
+		<item name="wcf.acp.option.package_server_woltlab_skip"><![CDATA[WoltLab-Updateserver ignorieren]]></item>
+	</category>
+</language>

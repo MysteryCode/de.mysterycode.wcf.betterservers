@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns="http://www.woltlab.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.woltlab.com http://www.woltlab.com/XSD/5.4/eventListener.xsd">
+	<import>
+		<eventlistener name="packageUpdateServerListPage">
+			<eventclassname><![CDATA[wcf\acp\page\PackageUpdateServerListPage]]></eventclassname>
+			<eventname><![CDATA[readParameters]]></eventname>
+			<listenerclassname><![CDATA[wcf\system\event\listener\BetterServersWoltLabServerListListener]]></listenerclassname>
+			<environment>admin</environment>
+			<inherit>1</inherit>
+			<options><![CDATA[package_server_betterservers]]></options>
+		</eventlistener>
+		<eventlistener name="packageUpdateServerList">
+			<eventclassname><![CDATA[wcf\data\package\update\server\PackageUpdateServerList]]></eventclassname>
+			<eventname><![CDATA[init]]></eventname>
+			<listenerclassname><![CDATA[wcf\system\event\listener\BetterServersWoltLabServerListListener]]></listenerclassname>
+			<environment>admin</environment>
+			<inherit>1</inherit>
+			<options><![CDATA[package_server_betterservers]]></options>
+		</eventlistener>
+		<eventlistener name="packageUpdateServerExchange">
+			<eventclassname><![CDATA[wcf\system\WCFACP]]></eventclassname>
+			<eventname><![CDATA[initialized]]></eventname>
+			<listenerclassname><![CDATA[wcf\system\event\listener\BetterServersWoltLabServerListListener]]></listenerclassname>
+			<environment>admin</environment>
+			<inherit>1</inherit>
+			<options><![CDATA[package_server_betterservers]]></options>
+		</eventlistener>
+		<eventlistener name="packageListPage">
+			<eventclassname><![CDATA[wcf\acp\page\PackageListPage]]></eventclassname>
+			<eventname><![CDATA[readParameters]]></eventname>
+			<listenerclassname><![CDATA[wcf\system\event\listener\BetterServersWoltLabServerPackageListListener]]></listenerclassname>
+			<environment>admin</environment>
+			<inherit>1</inherit>
+			<options><![CDATA[package_server_betterservers]]></options>
+		</eventlistener>
+	</import>
+</data>
