@@ -11,6 +11,24 @@ use wcf\system\WCF;
 use wcf\util\FileUtil;
 use wcf\util\Url;
 
+/**
+ * Represents a package update server.
+ *
+ * @author  Alexander Ebert, Florian Gail
+ * @copyright   2001-2019 WoltLab GmbH
+ * @license GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
+ * @package WoltLabSuite\Core\Data\Package\Update\Server
+ *
+ * @property-read   int $packageUpdateServerID      unique id of the package update server
+ * @property-read   string $serverURL          url of the package update server
+ * @property-read   string $loginUsername          username used to login on the package update server
+ * @property-read   string $loginPassword          password used to login on the package update server
+ * @property-read   int $isDisabled         is `1` if the package update server is disabled and thus not considered for package updates, otherwise `0`
+ * @property-read   int $lastUpdateTime         timestamp at which the data of the package update server has been fetched the last time
+ * @property-read   string $status             status of the package update server (`online` or `offline`)
+ * @property-read   string $errorMessage           error message if the package update server if offline or empty otherwise
+ * @property-read   string $apiVersion         version of the supported package update server api (`2.0`, `2.1`)
+ */
 class PackageUpdateServer extends DatabaseObject {
 	/**
 	 * @inheritDoc
@@ -184,7 +202,12 @@ class PackageUpdateServer extends DatabaseObject {
 		WCF::getSession()->register('packageUpdateAuthData', \serialize($packageUpdateAuthData));
 		
 		if ($saveCredentials) {
-			$serverAction = new PackageUpdateServerAction([$packageUpdateServerID], 'update', ['data' => ['loginUsername' => $username, 'loginPassword' => $password,],]);
+			$serverAction = new PackageUpdateServerAction([$packageUpdateServerID], 'update', [
+				'data' => [
+					'loginUsername' => $username,
+					'loginPassword' => $password,
+				],
+			]);
 			$serverAction->executeAction();
 		}
 	}
@@ -389,6 +412,6 @@ class PackageUpdateServer extends DatabaseObject {
                         apiVersion = ?,
                         metaData = ?";
 		$statement = WCF::getDB()->prepareStatement($sql);
-		$statement->execute([0, 'online', '', '2.0', null,]);
+		$statement->execute([0, 'online', '', '2.0', null]);
 	}
 }
