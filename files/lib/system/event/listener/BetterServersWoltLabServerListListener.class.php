@@ -8,8 +8,10 @@ class BetterServersWoltLabServerListListener extends AbstractEventListener
 {
     protected function onInitialized(WCFACP $eventObj)
     {
-        if (PACKAGE_SERVER_BETTERSERVERS && $eventName == 'initialized') {
-            @include_once(WCF_DIR . '/lib/data/package/update/server/BetterServersPackageUpdateServer.class.php');
+        if (!PACKAGE_SERVER_BETTERSERVERS) {
+            return;
         }
+
+        @include_once(WCF_DIR . '/lib/data/package/update/server/BetterServersPackageUpdateServer.class.php');
     }
 }
