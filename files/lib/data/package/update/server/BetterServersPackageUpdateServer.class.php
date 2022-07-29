@@ -2,9 +2,9 @@
 
 namespace wcf\data\package\update\server;
 
+use Laminas\Diactoros\Uri;
 use wcf\data\DatabaseObject;
 use wcf\system\cache\builder\PackageUpdateCacheBuilder;
-use wcf\system\io\RemoteFile;
 use wcf\system\Regex;
 use wcf\system\registry\RegistryHandler;
 use wcf\system\WCF;
@@ -73,10 +73,10 @@ class PackageUpdateServer extends DatabaseObject
             }
 
             if ($this->isWoltLabUpdateServer()) {
-                $this->data['serverURL'] = "http://update.woltlab.com/{$prefix}{$officialPath}/";
+                $this->data['serverURL'] = "https://update.woltlab.com/{$prefix}{$officialPath}/";
             }
             if ($this->isWoltLabStoreServer()) {
-                $this->data['serverURL'] = "http://store.woltlab.com/{$prefix}{$officialPath}/";
+                $this->data['serverURL'] = "https://store.woltlab.com/{$prefix}{$officialPath}/";
             }
             if (!PACKAGE_SERVER_BETTERSERVERS && ($this->isWoltLabUpdateServer() || $this->isWoltLabStoreServer())) {
                 $this->data['isDisabled'] = 0;
@@ -137,13 +137,13 @@ class PackageUpdateServer extends DatabaseObject
 
         if (!$woltlabUpdateServer && $woltlabUpdateServerCreate) {
             $packageServer = PackageUpdateServerEditor::create([
-                'serverURL' => "http://update.woltlab.com/{$officialPath}/",
+                'serverURL' => "https://update.woltlab.com/{$officialPath}/",
             ]);
             $results[$packageServer->packageUpdateServerID] = $packageServer;
         }
         if (!$woltlabStoreServer && $woltlabStoreServerCreate) {
             $packageServer = PackageUpdateServerEditor::create([
-                'serverURL' => "http://store.woltlab.com/{$officialPath}/",
+                'serverURL' => "https://store.woltlab.com/{$officialPath}/",
             ]);
             $results[$packageServer->packageUpdateServerID] = $packageServer;
         }
@@ -176,16 +176,13 @@ class PackageUpdateServer extends DatabaseObject
     }
 
     /**
-     * Returns true if the given server url is valid.
-     *
-     * @param string $serverURL
-     * @return  bool
+     * @deprecated 5.6 This method was only used in PackageUpdateServerAddForm.
      */
     public static function isValidServerURL($serverURL)
     {
         $parsedURL = Url::parse($serverURL);
 
-        return \in_array($parsedURL['scheme'], ['http', 'https']) && $parsedURL['host'] !== '';
+        return \in_array($parsedURL['scheme'], ['https']) && $parsedURL['host'] !== '';
     }
 
     /**
@@ -231,8 +228,13 @@ class PackageUpdateServer extends DatabaseObject
      * @param string $password
      * @param bool $saveCredentials
      */
-    public static function storeAuthData($packageUpdateServerID, $username, $password, $saveCredentials = false)
-    {
+    public static function storeAuthData(
+        $packageUpdateServerID,
+        $username,
+        #[\SensitiveParameter]
+        $password,
+        $saveCredentials = false
+    ) {
         $packageUpdateAuthData = @\unserialize(WCF::getSession()->getVar('packageUpdateAuthData'));
         if ($packageUpdateAuthData === null || !\is_array($packageUpdateAuthData)) {
             $packageUpdateAuthData = [];
@@ -281,23 +283,21 @@ class PackageUpdateServer extends DatabaseObject
     /**
      * Returns the list endpoint for package servers.
      *
-     * @param bool $forceHTTP
      * @return  string
      */
-    public function getListURL($forceHTTP = false)
+    public function getListURL()
     {
+        $url = new Uri($this->serverURL);
+
+        if ($url->getHost() !== 'localhost') {
+            $url = $url->withScheme('https');
+        }
+
         if ($this->apiVersion == '2.0') {
-            return $this->serverURL;
+            return (string)$url;
         }
 
-        $serverURL = FileUtil::addTrailingSlash($this->serverURL) . 'list/' . WCF::getLanguage()->getFixedLanguageCode() . '.xml';
-
-        $metaData = $this->getMetaData();
-        if ($forceHTTP || !RemoteFile::supportsSSL() || !$metaData['ssl']) {
-            return \preg_replace('~^https://~', 'http://', $serverURL);
-        }
-
-        return \preg_replace('~^http://~', 'https://', $serverURL);
+        return FileUtil::addTrailingSlash((string)$url) . 'list/' . WCF::getLanguage()->getFixedLanguageCode() . '.xml';
     }
 
     /**
@@ -307,16 +307,13 @@ class PackageUpdateServer extends DatabaseObject
      */
     public function getDownloadURL()
     {
-        if ($this->apiVersion == '2.0') {
-            return $this->serverURL;
+        $url = new Uri($this->serverURL);
+
+        if ($url->getHost() !== 'localhost') {
+            $url = $url->withScheme('https');
         }
 
-        $metaData = $this->getMetaData();
-        if (!RemoteFile::supportsSSL() || !$metaData['ssl']) {
-            return \preg_replace('~^https://~', 'http://', $this->serverURL);
-        }
-
-        return \preg_replace('~^http://~', 'https://', $this->serverURL);
+        return (string)$url;
     }
 
     /**
@@ -330,22 +327,11 @@ class PackageUpdateServer extends DatabaseObject
     }
 
     /**
-     * Returns true if a request to this server would make use of a secure connection.
-     *
-     * @return  bool
+     * @deprecated 5.6 This method always returns true. Package servers must use TLS.
      */
     public function attemptSecureConnection()
     {
-        if ($this->apiVersion == '2.0') {
-            return false;
-        }
-
-        $metaData = $this->getMetaData();
-        if (RemoteFile::supportsSSL() && $metaData['ssl']) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
@@ -394,30 +380,11 @@ class PackageUpdateServer extends DatabaseObject
      * Returns true if this server is trusted and is therefore allowed to distribute
      * official updates for packages whose identifier starts with "com.woltlab.".
      *
-     * Internal mirrors in enterprise environments are supported through the optional
-     * PHP constant `UPDATE_SERVER_TRUSTED_MIRROR`, adding it to the `config.inc.php`
-     * of the Core is considered to be a safe practice.
-     *
-     * Example:
-     *   define('UPDATE_SERVER_TRUSTED_MIRROR', 'mirror.example.com');
-     *
      * @return      bool
      */
     final public function isTrustedServer()
     {
-        $host = Url::parse($this->serverURL)['host'];
-
-        // the official server is always considered to be trusted
-        if ($host === 'update.woltlab.com') {
-            return true;
-        }
-
-        // custom override to allow testing and mirrors in enterprise environments
-        if (\defined('UPDATE_SERVER_TRUSTED_MIRROR') && !empty(UPDATE_SERVER_TRUSTED_MIRROR) && $host === UPDATE_SERVER_TRUSTED_MIRROR) {
-            return true;
-        }
-
-        return false;
+        return $this->isWoltLabUpdateServer();
     }
 
     /**
