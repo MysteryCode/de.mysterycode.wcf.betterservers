@@ -176,7 +176,7 @@ class PackageUpdateServer extends DatabaseObject
     }
 
     /**
-     * @deprecated 5.6 This method was only used in PackageUpdateServerAddForm.
+     * @deprecated 6.0 This method was only used in PackageUpdateServerAddForm.
      */
     public static function isValidServerURL($serverURL)
     {
@@ -327,7 +327,7 @@ class PackageUpdateServer extends DatabaseObject
     }
 
     /**
-     * @deprecated 5.6 This method always returns true. Package servers must use TLS.
+     * @deprecated 6.0 This method always returns true. Package servers must use TLS.
      */
     public function attemptSecureConnection()
     {
