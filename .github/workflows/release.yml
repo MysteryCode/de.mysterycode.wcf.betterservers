@@ -7,35 +7,29 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write
-
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-
+          node-version: "16"
       - name: Create package
         run: |
           rm -rf *.tar.gz
-          npx --yes wspackager
-
+          npx --yes wspackager@latest
       - name: Check file existence
         id: check_files
-        uses: andstor/file-existence-action@v1
+        uses: andstor/file-existence-action@v2
         with:
-          files: "${{ github.event.repository.name }}_*.tar.gz"
-
+          files: "*.tar.gz"
       - name: On Build Failure
         if: steps.check_files.outputs.files_exists == 'false'
         run: |
           echo "Packaging FAILED" && exit 1
-
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/') && steps.check_files.outputs.files_exists == 'true'
         with:
-          files: "${{ github.event.repository.name }}_*.tar.gz"
+          files: "*.tar.gz"
