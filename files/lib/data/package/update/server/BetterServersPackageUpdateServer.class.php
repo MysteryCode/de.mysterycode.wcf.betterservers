@@ -162,6 +162,29 @@ class PackageUpdateServer extends DatabaseObject
             return $updateServer->isWoltLabStoreServer();
         });
 
+        if (empty($pluginStoreServer)) {
+            $prefix = ENABLE_ENTERPRISE_MODE ? 'cloud/' : '';
+            $officialPath = \wcf\getMinorVersion();
+            if (self::isUpgradeOverrideEnabled()) {
+                $officialPath = WCF::AVAILABLE_UPGRADE_VERSION;
+            }
+
+            // TODO find reference server for credentials?
+
+            return new self(null, [
+                'packageUpdateServerID' => -1000,
+                'serverURL' => "https://store.woltlab.com/{$prefix}{$officialPath}/",
+                'loginUsername' => '',
+                'loginPassword' => 'loginPassword',
+                'isDisabled' => 0,
+                'lastUpdateTime' => 0,
+                'status' => 'online',
+                'errorMessage' => '',
+                'apiVersion' => '3.1',
+                'metaData' => null,
+            ]);
+        }
+
         return \current($pluginStoreServer);
     }
 
