@@ -5,8 +5,8 @@
         <packagename language="de"><![CDATA[Optimierte Updateserver-Verwaltung]]></packagename>
         <packagedescription><![CDATA[]]></packagedescription>
 
-        <version>1.1.1</version>
-        <date>2023-03-18</date>
+        <version>1.1.2</version>
+        <date>2024-10-31</date>
     </packageinformation>
 
     <authorinformation>
@@ -19,7 +19,7 @@
     </requiredpackages>
 
     <excludedpackages>
-        <excludedpackage version="6.1.0 dev 1">com.woltlab.wcf</excludedpackage>
+        <excludedpackage version="6.2.0 dev 1">com.woltlab.wcf</excludedpackage>
     </excludedpackages>
 
     <instructions type="install">
@@ -33,21 +33,9 @@
 
     <instructions type="update" fromversion="1.1.0">
         <instruction type="file"/>
-    </instructions>
-    <instructions type="update" fromversion="1.0.0">
-        <instruction type="file"/>
-
-        <instruction type="option"/>
-        <instruction type="eventListener"/>
-
         <instruction type="language"/>
     </instructions>
-    <instructions type="update" fromversion="1.0.0 Beta *">
-        <instruction type="file"/>
-
-        <instruction type="option"/>
-        <instruction type="eventListener"/>
-
+    <instructions type="update" fromversion="1.1.1">
         <instruction type="language"/>
     </instructions>
 </package>
